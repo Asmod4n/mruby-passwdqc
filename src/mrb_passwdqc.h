@@ -7,6 +7,8 @@
 #include <mruby/throw.h>
 #include <stdlib.h>
 #include <mruby/error.h>
+#include <string.h>
+#include <mruby/string.h>
 #include <mruby/class.h>
 
 static const struct mrb_data_type mrb_passwdqc_params_type = {
