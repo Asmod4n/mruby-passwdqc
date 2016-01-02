@@ -4,17 +4,17 @@
 static mrb_value
 mrb_passwdqc_initialize(mrb_state *mrb, mrb_value self)
 {
-  mrb_value pathname_str = mrb_nil_value();
+  mrb_value pathname_val = mrb_nil_value();
 
-  mrb_get_args(mrb, "|S!", &pathname_str);
+  mrb_get_args(mrb, "|S!", &pathname_val);
 
   passwdqc_params_t *params = (passwdqc_params_t *) mrb_malloc(mrb, sizeof(passwdqc_params_t));
   if (params) {
     mrb_data_init(self, params, &mrb_passwdqc_params_type);
     passwdqc_params_reset(params);
 
-    if (!mrb_nil_p(pathname_str)) {
-      mrb_funcall(mrb, self, "params_load", 1, pathname_str);
+    if (mrb_string_p(pathname_val)) {
+      mrb_funcall(mrb, self, "params_load", 1, pathname_val);
     }
   }
 
@@ -25,11 +25,25 @@ static mrb_value
 mrb_passwdqc_check(mrb_state *mrb, mrb_value self)
 {
   char *newpass, *oldpass = NULL;
+  mrb_value login_val = mrb_nil_value();
 
-  mrb_get_args(mrb, "z|z!", &newpass, &oldpass);
+  mrb_get_args(mrb, "z|z!S!", &newpass, &oldpass, &login_val);
 
-  const char *reason = passwdqc_check(&((passwdqc_params_t *) DATA_PTR(self))->qc, newpass, oldpass, NULL);
+  struct passwd *pwd = NULL;
+  if (mrb_string_p(login_val)) {
+    const char *login = mrb_string_value_cstr(mrb, &login_val);
+    errno = 0;
+    pwd = getpwnam(login);
+    if (pwd == NULL) {
+      if (errno == 0) {
+        mrb_raisef(mrb, E_ARGUMENT_ERROR, "login '%S' not found", login_val);
+      } else {
+        mrb_sys_fail(mrb, "getpwnam");
+      }
+    }
+  }
 
+  const char *reason = passwdqc_check(&((passwdqc_params_t *) DATA_PTR(self))->qc, newpass, oldpass, pwd);
   if (reason) {
     return mrb_str_new_static(mrb, reason, strlen(reason));
   } else {
