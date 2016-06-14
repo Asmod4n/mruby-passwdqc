@@ -36,7 +36,7 @@ mrb_passwdqc_check(mrb_state *mrb, mrb_value self)
     pwd = getpwnam(login);
     if (pwd == NULL) {
       if (errno == 0) {
-        mrb_raisef(mrb, E_ARGUMENT_ERROR, "login '%S' not found", login_val);
+        return mrb_format(mrb, "login '%S' not found", login_val);
       } else {
         mrb_sys_fail(mrb, "getpwnam");
       }
@@ -186,6 +186,4 @@ void mrb_mruby_passwdqc_gem_init(mrb_state* mrb)
 
 }
 
-void mrb_mruby_passwdqc_gem_final(mrb_state* mrb)
-{
-}
+void mrb_mruby_passwdqc_gem_final(mrb_state* mrb) {}
