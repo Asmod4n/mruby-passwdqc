@@ -8,14 +8,12 @@ mrb_passwdqc_initialize(mrb_state *mrb, mrb_value self)
 
   mrb_get_args(mrb, "|S!", &pathname_val);
 
-  passwdqc_params_t *params = (passwdqc_params_t *) mrb_malloc(mrb, sizeof(passwdqc_params_t));
-  if (params) {
-    mrb_data_init(self, params, &mrb_passwdqc_params_type);
-    passwdqc_params_reset(params);
+  passwdqc_params_t *params = (passwdqc_params_t *) mrb_realloc(mrb, DATA_PTR(self), sizeof(passwdqc_params_t));
+  mrb_data_init(self, params, &mrb_passwdqc_params_type);
+  passwdqc_params_reset(params);
 
-    if (mrb_string_p(pathname_val)) {
-      mrb_funcall(mrb, self, "params_load", 1, pathname_val);
-    }
+  if (mrb_string_p(pathname_val)) {
+    mrb_funcall(mrb, self, "params_load", 1, pathname_val);
   }
 
   return self;

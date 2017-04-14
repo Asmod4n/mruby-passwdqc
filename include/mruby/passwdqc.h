@@ -3,14 +3,10 @@
 
 #include <mruby.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+MRB_BEGIN_DECL
 
 #define E_PASSWDQC_ERROR (mrb_class_get_under(mrb, mrb_class_get(mrb, "Passwdqc"), "Error"))
 
-#ifdef __cplusplus
-}
-#endif
+MRB_END_DECL
 
 #endif
